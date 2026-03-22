@@ -1,0 +1,237 @@
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+export interface PDFOptions {
+  isPro?: boolean;
+  addWatermark?: boolean;
+  watermarkText?: string;
+  filename?: string;
+}
+
+/**
+ * Robust PDF generator: clones element off-screen, resolves OKLCH colours,
+ * optionally stamps a watermark, captures with html2canvas, then saves via jsPDF.
+ */
+export const generatePDF = async (
+  elementId: string,
+  filename: string,
+  options: PDFOptions = {}
+): Promise<void> => {
+  const {
+    isPro = false,
+    addWatermark = !isPro,
+    watermarkText = 'PDFDecor Free',
+  } = options;
+
+  const element = document.getElementById(elementId);
+  if (!element) {
+    console.error(`[PDFDecor] Element #${elementId} not found.`);
+    alert('Preview element not found. Please make sure the preview is visible before downloading.');
+    return;
+  }
+
+  // --- 1. Clone off-screen -------------------------------------------------
+  const clone = element.cloneNode(true) as HTMLElement;
+  clone.style.cssText = `
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: ${element.offsetWidth || 794}px;
+    min-height: ${element.offsetHeight || 400}px;
+    background: #ffffff;
+    z-index: -1;
+    pointer-events: none;
+  `;
+  clone.id = elementId + '-pdf-clone';
+  document.body.appendChild(clone);
+
+  try {
+    // --- 2. Resolve modern colour functions (oklch, lch, lab…) --------------
+    resolveColors(clone);
+
+    // --- 3. Watermark -------------------------------------------------------
+    if (addWatermark && !isPro) {
+      injectWatermark(clone, watermarkText);
+      injectFooterBranding(clone);
+    }
+
+    // Allow browser to re-paint the clone
+    await new Promise<void>(r => setTimeout(r, 400));
+
+    // --- 4. Capture ---------------------------------------------------------
+    const canvas = await html2canvas(clone, {
+      // High-res capture for print quality
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      removeContainer: false,
+      foreignObjectRendering: false,
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+    // --- 5. Build PDF -------------------------------------------------------
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true,
+    });
+
+    const pageW = pdf.internal.pageSize.getWidth();   // 210
+    const pageH = pdf.internal.pageSize.getHeight();  // 297
+
+    // Consistent A4 margins (print-friendly)
+    const margin = 10; // mm
+    const contentW = pageW - margin * 2;
+    const contentH = pageH - margin * 2;
+
+    const canvasW = canvas.width;
+    const canvasH = canvas.height;
+
+    // Fit to content width (respect margins); if taller than one page, add pages
+    const ratio = contentW / canvasW;
+    const scaledH = canvasH * ratio;
+
+    if (scaledH <= contentH) {
+      pdf.addImage(imgData, 'JPEG', margin, margin, contentW, scaledH);
+    } else {
+      // Multi-page: slice the canvas into page-sized strips
+      const pageHeightPx = Math.floor(contentH / ratio);
+      let offsetY = 0;
+
+      while (offsetY < canvasH) {
+        const sliceH = Math.min(pageHeightPx, canvasH - offsetY);
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvasW;
+        pageCanvas.height = sliceH;
+        const ctx = pageCanvas.getContext('2d')!;
+        ctx.drawImage(canvas, 0, offsetY, canvasW, sliceH, 0, 0, canvasW, sliceH);
+        const sliceData = pageCanvas.toDataURL('image/jpeg', 0.92);
+        if (offsetY > 0) pdf.addPage();
+        pdf.addImage(sliceData, 'JPEG', margin, margin, contentW, sliceH * ratio);
+        offsetY += sliceH;
+      }
+    }
+
+    pdf.save(filename.endsWith('.pdf') ? filename : filename + '.pdf');
+  } catch (err: any) {
+    console.error('[PDFDecor] PDF generation error:', err);
+    alert(`PDF generation failed: ${err?.message ?? err}. Please try again.`);
+  } finally {
+    if (document.body.contains(clone)) {
+      document.body.removeChild(clone);
+    }
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function injectWatermark(el: HTMLElement, text: string) {
+  const wm = document.createElement('div');
+  wm.innerText = text;
+  wm.style.cssText = `
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: 52px;
+    font-weight: 900;
+    color: rgba(100,100,100,0.12);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9999;
+    user-select: none;
+    font-family: Arial, sans-serif;
+    letter-spacing: 4px;
+  `;
+  el.style.position = 'relative';
+  el.appendChild(wm);
+}
+
+function injectFooterBranding(el: HTMLElement) {
+  const footer = document.createElement('div');
+  footer.innerText = 'Generated by PDFDecor.in — Upgrade to Pro to remove branding';
+  footer.style.cssText = `
+    display: block;
+    text-align: center;
+    font-size: 9px;
+    color: #9ca3af;
+    padding: 6px 0 4px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 8px;
+    font-family: Arial, sans-serif;
+  `;
+  el.appendChild(footer);
+}
+
+/**
+ * Iterates every element inside root and replaces modern colour functions
+ * (oklch, oklab, lch, lab, color(…)) with rgb() equivalents that jsPDF /
+ * html2canvas understand, by measuring through a temporary canvas pixel.
+ */
+function resolveColors(root: HTMLElement) {
+  const colorProps: string[] = [
+    'color', 'backgroundColor',
+    'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor',
+    'outlineColor', 'textDecorationColor',
+  ];
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+
+  const toRGB = (raw: string): string => {
+    if (!raw || raw === 'transparent' || raw === 'rgba(0, 0, 0, 0)') return raw;
+    if (/^(rgb|#)/.test(raw)) return raw;
+    try {
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = raw;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+      return `rgb(${r},${g},${b})`;
+    } catch { return raw; }
+  };
+
+  const elements: Element[] = [root, ...Array.from(root.querySelectorAll('*'))];
+  for (const el of elements) {
+    if (!(el instanceof HTMLElement)) continue;
+    const computed = getComputedStyle(el);
+    for (const prop of colorProps) {
+      const raw = computed[prop as keyof CSSStyleDeclaration] as string;
+      if (!raw) continue;
+      const converted = toRGB(raw);
+      if (converted && converted !== raw) {
+        el.style.setProperty(
+          prop.replace(/([A-Z])/g, c => '-' + c.toLowerCase()),
+          converted,
+          'important',
+        );
+      }
+    }
+
+    // Gradients
+    const bg = computed.backgroundImage;
+    if (bg && bg !== 'none' && /oklch|oklab|lch|lab|color\(/.test(bg)) {
+      const fixed = bg.replace(/(oklch|oklab|lch|lab|color)\([^)]+\)/g, m => toRGB(m));
+      if (fixed !== bg) el.style.setProperty('background-image', fixed, 'important');
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sharing helpers
+// ---------------------------------------------------------------------------
+export const shareViaWhatsApp = (message: string, url?: string) => {
+  const text = encodeURIComponent(url ? `${message} ${url}` : message);
+  window.open(`https://wa.me/?text=${text}`, '_blank');
+};
+
+export const shareViaEmail = (subject: string, body: string) => {
+  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+};

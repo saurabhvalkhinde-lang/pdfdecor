@@ -1,0 +1,202 @@
+export interface AppointmentLetterData {
+  candidateName: string;
+  position: string;
+  department: string;
+  salary: string;
+  joiningDate: string;
+  companyName: string;
+  companyAddress: string;
+  companyPhone: string;
+  companyEmail: string;
+  hrName: string;
+  hrTitle: string;
+  letterDate: string;
+  employeeId?: string;
+  reportingManager?: string;
+  workLocation?: string;
+  terms?: string;
+}
+
+interface Props { data: AppointmentLetterData; isPro?: boolean; }
+
+export function AppointmentLetterTemplate1({ data, isPro = false }: Props) {
+  return (
+    <div style={{ backgroundColor: '#fff', padding: '60px', maxWidth: '800px', margin: '0 auto', minHeight: '1056px', fontFamily: 'system-ui, sans-serif', position: 'relative' }}>
+      {!isPro && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%) rotate(-45deg)', fontSize: '48px', fontWeight: 'bold', color: 'rgba(128,128,128,0.10)', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 9999 }}>PDFDecor Free</div>}
+      <div style={{ borderBottom: '4px solid #16a34a', paddingBottom: '20px', marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#16a34a', margin: 0 }}>{data.companyName}</h1>
+          <p style={{ color: '#6b7280', fontSize: '12px', margin: '4px 0 0' }}>{data.companyAddress} · {data.companyPhone}</p>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <p style={{ fontSize: '13px', color: '#374151', margin: 0 }}>Ref: {data.employeeId || 'EMP-' + Date.now().toString().slice(-4)}</p>
+          <p style={{ fontSize: '13px', color: '#374151', margin: '2px 0 0' }}>Date: {data.letterDate}</p>
+        </div>
+      </div>
+      <div style={{ marginBottom: '24px' }}>
+        <p style={{ fontSize: '14px', marginBottom: '4px' }}>To,</p>
+        <p style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{data.candidateName}</p>
+      </div>
+      <h2 style={{ fontSize: '18px', fontWeight: 'bold', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '2px', color: '#16a34a', marginBottom: '24px' }}>Appointment Letter</h2>
+      <p style={{ fontSize: '14px', lineHeight: '1.8', marginBottom: '16px' }}>
+        Dear {data.candidateName},<br /><br />
+        With reference to your application and the subsequent interview process, we are pleased to appoint you as <strong>{data.position}</strong> in the <strong>{data.department}</strong> department at <strong>{data.companyName}</strong>.
+      </p>
+      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '20px', marginBottom: '20px' }}>
+        <h3 style={{ color: '#166534', margin: '0 0 12px', fontSize: '14px' }}>Appointment Details</h3>
+        {[['Designation', data.position], ['Department', data.department], ['Date of Joining', data.joiningDate], ['Remuneration (CTC)', data.salary], ...(data.employeeId ? [['Employee ID', data.employeeId]] : []), ...(data.reportingManager ? [['Reporting To', data.reportingManager]] : []), ...(data.workLocation ? [['Work Location', data.workLocation]] : [])].map(([k, v], i) => (
+          <div key={i} style={{ display: 'flex', padding: '5px 0', borderBottom: i < 5 ? '1px solid #dcfce7' : 'none' }}>
+            <span style={{ width: '200px', fontSize: '13px', color: '#6b7280' }}>{k}</span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#166534' }}>{v}</span>
+          </div>
+        ))}
+      </div>
+      {data.terms && <div style={{ marginBottom: '20px' }}><h3 style={{ fontSize: '14px', color: '#1f2937', marginBottom: '8px' }}>Terms and Conditions:</h3><p style={{ fontSize: '13px', color: '#374151', lineHeight: '1.7', whiteSpace: 'pre-line' }}>{data.terms}</p></div>}
+      <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.8', marginBottom: '40px' }}>
+        We look forward to your contributions. Please report to the office on {data.joiningDate} at 9:00 AM with this letter and relevant documents.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginTop: '40px' }}>
+        <div><div style={{ height: '48px', borderBottom: '2px solid #16a34a', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.hrName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>{data.hrTitle} — {data.companyName}</p></div>
+        <div><div style={{ height: '48px', borderBottom: '2px solid #16a34a', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.candidateName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>Signature & Date</p></div>
+      </div>
+      {!isPro && <p style={{ textAlign: 'center', fontSize: '11px', color: '#9ca3af', marginTop: '40px' }}>Generated by PDFDecor.in</p>}
+    </div>
+  );
+}
+
+export function AppointmentLetterTemplate2({ data, isPro = false }: Props) {
+  return (
+    <div style={{ backgroundColor: '#fff', padding: '0', maxWidth: '800px', margin: '0 auto', minHeight: '1056px', fontFamily: 'Georgia, serif', position: 'relative' }}>
+      {!isPro && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%) rotate(-45deg)', fontSize: '48px', fontWeight: 'bold', color: 'rgba(128,128,128,0.10)', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 9999 }}>PDFDecor Free</div>}
+      <div style={{ background: '#1e3a5f', padding: '32px 48px', color: '#fff' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>{data.companyName}</h1>
+        <p style={{ opacity: 0.75, fontSize: '12px', margin: '6px 0 0' }}>{data.companyAddress} | {data.companyPhone} | {data.companyEmail}</p>
+      </div>
+      <div style={{ padding: '40px 48px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '28px' }}>
+          <div><p style={{ fontWeight: 'bold', fontSize: '16px', margin: 0 }}>{data.candidateName}</p></div>
+          <div style={{ textAlign: 'right' }}><p style={{ fontSize: '13px', color: '#374151', margin: 0 }}>Date: {data.letterDate}</p>{data.employeeId && <p style={{ fontSize: '13px', color: '#374151', margin: '2px 0' }}>ID: {data.employeeId}</p>}</div>
+        </div>
+        <h2 style={{ textAlign: 'center', fontSize: '20px', fontWeight: 'bold', color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '24px' }}>Appointment Letter</h2>
+        <p style={{ fontSize: '14px', lineHeight: '1.9', marginBottom: '20px', color: '#374151' }}>
+          Dear {data.candidateName},<br /><br />
+          We are pleased to confirm your appointment as <strong>{data.position}</strong> in the <strong>{data.department}</strong> department, effective <strong>{data.joiningDate}</strong>. Your CTC shall be <strong>{data.salary}</strong> per annum.
+        </p>
+        {[data.reportingManager ? `Reporting Manager: ${data.reportingManager}` : null, data.workLocation ? `Work Location: ${data.workLocation}` : null].filter(Boolean).map((t, i) => <p key={i} style={{ fontSize: '13px', color: '#374151', marginBottom: '8px' }}>• {t}</p>)}
+        {data.terms && <p style={{ fontSize: '13px', fontStyle: 'italic', color: '#374151', lineHeight: '1.7', margin: '20px 0', borderLeft: '3px solid #1e3a5f', paddingLeft: '16px' }}>{data.terms}</p>}
+        <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.8', marginTop: '24px', marginBottom: '48px' }}>Kindly sign and return this letter as acceptance. Welcome to the team!</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+          <div><div style={{ height: '48px', borderBottom: '2px solid #1e3a5f', marginBottom: '8px' }}></div>
+            <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.hrName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>{data.hrTitle}</p></div>
+          <div><div style={{ height: '48px', borderBottom: '2px solid #1e3a5f', marginBottom: '8px' }}></div>
+            <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.candidateName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>Accepted | Date: _______</p></div>
+        </div>
+      </div>
+      {!isPro && <p style={{ textAlign: 'center', fontSize: '11px', color: '#9ca3af', paddingBottom: '20px' }}>Generated by PDFDecor.in</p>}
+    </div>
+  );
+}
+
+export function AppointmentLetterTemplate3({ data, isPro = false }: Props) {
+  return (
+    <div style={{ backgroundColor: '#fffbeb', padding: '60px', maxWidth: '800px', margin: '0 auto', minHeight: '1056px', fontFamily: 'system-ui, sans-serif', border: '8px solid #f59e0b', position: 'relative' }}>
+      {!isPro && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%) rotate(-45deg)', fontSize: '48px', fontWeight: 'bold', color: 'rgba(128,128,128,0.10)', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 9999 }}>PDFDecor Free</div>}
+      <div style={{ textAlign: 'center', borderBottom: '2px solid #f59e0b', paddingBottom: '20px', marginBottom: '28px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#92400e', margin: 0 }}>{data.companyName}</h1>
+        <p style={{ color: '#b45309', fontSize: '13px', margin: '6px 0' }}>{data.companyAddress}</p>
+        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#78350f', textTransform: 'uppercase', letterSpacing: '4px', margin: '16px 0 0' }}>Appointment Letter</h2>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '13px' }}>
+        <div><strong>To:</strong> {data.candidateName}</div>
+        <div><strong>Date:</strong> {data.letterDate}</div>
+      </div>
+      <p style={{ fontSize: '14px', lineHeight: '1.8', marginBottom: '20px' }}>
+        Dear {data.candidateName}, we are happy to appoint you as <strong style={{ color: '#92400e' }}>{data.position}</strong> — {data.department} — effective <strong>{data.joiningDate}</strong> with an annual CTC of <strong>{data.salary}</strong>.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+        {[['Position', data.position], ['Department', data.department], ['Joining Date', data.joiningDate], ['Salary (CTC)', data.salary]].map(([k, v], i) => (
+          <div key={i} style={{ background: '#fef3c7', borderRadius: '8px', padding: '12px 16px', border: '1px solid #fcd34d' }}>
+            <p style={{ fontSize: '10px', color: '#b45309', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 4px' }}>{k}</p>
+            <p style={{ fontWeight: 'bold', color: '#78350f', margin: 0, fontSize: '14px' }}>{v}</p>
+          </div>
+        ))}
+      </div>
+      {data.terms && <p style={{ fontSize: '13px', color: '#374151', lineHeight: '1.7', marginBottom: '20px', padding: '14px', background: '#fef3c7', borderRadius: '8px', whiteSpace: 'pre-line' }}>{data.terms}</p>}
+      <p style={{ fontSize: '14px', lineHeight: '1.8', marginBottom: '40px' }}>Please report to our office on {data.joiningDate}. We look forward to your joining!</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+        <div><div style={{ height: '48px', borderBottom: '2px solid #f59e0b', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.hrName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>{data.hrTitle}</p></div>
+        <div><div style={{ height: '48px', borderBottom: '2px solid #f59e0b', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.candidateName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>Signature & Date</p></div>
+      </div>
+      {!isPro && <p style={{ textAlign: 'center', fontSize: '11px', color: '#9ca3af', marginTop: '40px' }}>Generated by PDFDecor.in</p>}
+    </div>
+  );
+}
+
+export function AppointmentLetterTemplate4({ data, isPro = false }: Props) {
+  return (
+    <div style={{ backgroundColor: '#fff', padding: '60px', maxWidth: '800px', margin: '0 auto', minHeight: '1056px', fontFamily: 'system-ui, sans-serif', position: 'relative' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '6px', background: 'linear-gradient(180deg, #ec4899, #8b5cf6)' }}></div>
+      {!isPro && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%) rotate(-45deg)', fontSize: '48px', fontWeight: 'bold', color: 'rgba(128,128,128,0.10)', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 9999 }}>PDFDecor Free</div>}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: '900', background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>{data.companyName}</h1>
+          <span style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', color: '#fff', padding: '4px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold' }}>APPOINTMENT LETTER</span>
+        </div>
+        <p style={{ fontSize: '12px', color: '#6b7280', margin: '8px 0 0' }}>{data.companyAddress} · {data.letterDate}</p>
+      </div>
+      <p style={{ fontSize: '15px', lineHeight: '1.8', marginBottom: '20px' }}>Dear <strong>{data.candidateName}</strong>,<br /><br />We are delighted to appoint you as <strong style={{ color: '#8b5cf6' }}>{data.position}</strong> in our {data.department} department, commencing <strong>{data.joiningDate}</strong>.</p>
+      <div style={{ background: '#fdf4ff', borderRadius: '12px', padding: '20px', marginBottom: '24px', border: '1px solid #e9d5ff' }}>
+        {[['Role', data.position], ['Department', data.department], ['Start Date', data.joiningDate], ['CTC', data.salary], ...(data.reportingManager ? [['Manager', data.reportingManager]] : [])].map(([k, v], i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: i < 4 ? '1px solid #e9d5ff' : 'none' }}>
+            <span style={{ fontSize: '13px', color: '#6b7280' }}>{k}</span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#7c3aed' }}>{v}</span>
+          </div>
+        ))}
+      </div>
+      {data.terms && <p style={{ fontSize: '13px', color: '#374151', lineHeight: '1.7', marginBottom: '20px' }}>{data.terms}</p>}
+      <p style={{ fontSize: '13px', color: '#374151', marginBottom: '48px', lineHeight: '1.8' }}>We look forward to your valued contribution. Please acknowledge acceptance by signing below.</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+        <div><div style={{ height: '48px', borderBottom: '2px solid #8b5cf6', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.hrName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>{data.hrTitle}</p></div>
+        <div><div style={{ height: '48px', borderBottom: '2px solid #8b5cf6', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.candidateName}</p><p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0' }}>Date: _______</p></div>
+      </div>
+    </div>
+  );
+}
+
+export function AppointmentLetterTemplate5({ data, isPro = false }: Props) {
+  return (
+    <div style={{ backgroundColor: '#0c1b33', color: '#e2e8f0', padding: '60px', maxWidth: '800px', margin: '0 auto', minHeight: '1056px', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e3a5f', paddingBottom: '20px', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: '900', color: '#38bdf8', margin: 0 }}>{data.companyName}</h1>
+        <span style={{ border: '1px solid #38bdf8', color: '#38bdf8', padding: '4px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold' }}>APPOINTMENT</span>
+      </div>
+      <p style={{ color: '#64748b', fontSize: '12px', marginBottom: '24px' }}>{data.letterDate} | Ref: {data.employeeId || 'HR-' + Date.now().toString().slice(-4)}</p>
+      <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#cbd5e1', marginBottom: '20px' }}>
+        Dear <strong style={{ color: '#e2e8f0' }}>{data.candidateName}</strong>,<br /><br />
+        We are pleased to confirm your appointment as <strong style={{ color: '#38bdf8' }}>{data.position}</strong>, {data.department}, starting <strong>{data.joiningDate}</strong>, with an annual CTC of <strong>{data.salary}</strong>.
+      </p>
+      <div style={{ background: '#0f2744', borderRadius: '12px', padding: '20px', marginBottom: '24px', border: '1px solid #1e3a5f' }}>
+        {[['Designation', data.position], ['Dept.', data.department], ['Joining', data.joiningDate], ['Salary', data.salary]].map(([k, v], i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? '1px solid #1e3a5f' : 'none' }}>
+            <span style={{ fontSize: '12px', color: '#64748b' }}>{k}</span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#38bdf8' }}>{v}</span>
+          </div>
+        ))}
+      </div>
+      {data.terms && <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: '1.7', marginBottom: '20px' }}>{data.terms}</p>}
+      <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '48px', lineHeight: '1.8' }}>Please acknowledge this letter by signing below. Welcome aboard!</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+        <div><div style={{ height: '48px', borderBottom: '1px solid #38bdf8', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.hrName}</p><p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0' }}>{data.hrTitle}</p></div>
+        <div><div style={{ height: '48px', borderBottom: '1px solid #38bdf8', marginBottom: '8px' }}></div>
+          <p style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>{data.candidateName}</p><p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0' }}>Date: _______</p></div>
+      </div>
+    </div>
+  );
+}
